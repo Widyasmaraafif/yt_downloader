@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import yt_dlp
+from yt_dlp.utils import sanitize_filename
 import os
 
 app = Flask(__name__)
@@ -43,6 +44,9 @@ def download_video():
         format_id = f"{video_format['format_id']}+{audio_format['format_id']}"
 
         # Langkah 3: Download dengan format_id gabungan
+        title = info_dict.get('title')
+        safe_filename = sanitize_filename(title) + ".mp4"
+        
         ydl_opts = {
             'format': format_id,
             'outtmpl': os.path.join(DOWNLOAD_DIR, '%(title)s.%(ext)s'),
@@ -55,7 +59,7 @@ def download_video():
 
         return jsonify({
             'title': info_dict.get('title'),
-            'filename': f"{info_dict.get('title')}.mp4",
+            'filename': safe_filename,
             'status': 'success'
         })
 
